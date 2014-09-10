@@ -145,7 +145,9 @@ void VMRun(NanoVM *vm)
 		VMFetch(vm);
 		VMDecodeOperation(vm);
 		VMEval(vm);
-		//VMDebug(vm);
+#ifdef DEBUG
+		VMDebug(vm);
+#endif
 		printf("%c", vm->registers[5]);
 	}
 }

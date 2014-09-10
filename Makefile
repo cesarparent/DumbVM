@@ -11,9 +11,14 @@ EXE = dumbvm
 
 all: $(EXE)
 
-debug: CXXFLAGS += -g
-debug: LDFLAGS += -g
+debug: CXXFLAGS += -g -DDEBUG
+debug: LDFLAGS += -g -DDEBUG
 debug: $(EXE)
+
+assembler: CXXFLAGS += -DASM
+assembler: LDFLAGS += -DASM
+assembler: prep $(OBJECTS_DIR)dumbasm.o
+	$(CXX) $(LDFLAGS) $(OBJECTS_DIR)dumbasm.o -o $(BUILD_DIR)$@
 
 $(EXE): prep $(FILES)
 	$(CXX) $(LDFLAGS) $(FILES) -o $(BUILD_DIR)$@
@@ -26,4 +31,5 @@ prep:
 
 clean:
 	rm -rf ./temp
-	rm -rf $(EXE)
+	rm -rf $(BUILD_DIR)$(EXE)
+	rm -rf $(BUILD_DIR)assembler

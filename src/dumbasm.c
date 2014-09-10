@@ -14,3 +14,14 @@ void ASMLoadProgram(FILE *programFile, NanoVM *vm)
 		vm->program[i++] = word;
 	}
 }
+
+
+#ifdef ASM
+
+int main (int argc, char const *argv[])
+{
+	
+	return 0;
+}
+
+#endif
