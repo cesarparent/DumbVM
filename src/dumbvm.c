@@ -12,9 +12,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "nanovm.h"
-#include "nanodebug.h"
-#include "nanoasm.h"
+#include "dumbvm.h"
+#include "dumbdebug.h"
+#include "dumbasm.h"
 
 /**
 ** Boots the virtual machine, attempts to read a program,
@@ -93,20 +93,6 @@ void VMEval(NanoVM *vm)
 		default:
 			break;
 	}
-}
-
-/**
-** Prints out the value of the four main registers
-**
-** @param NanoVM *vm the virtual machine to debug
-*/
-void VMDebug(NanoVM *vm)
-{
-	for(int i = 0; i < NUM_REGISTERS; ++i)
-	{
-		printf("%03d ", vm->registers[i]);
-	}
-	printf("\n");
 }
 
 /**

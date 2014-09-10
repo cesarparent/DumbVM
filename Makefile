@@ -4,17 +4,16 @@ LDFLAGS = -arch i386 -arch x86_64 -mmacosx-version-min=10.6
 SOURCE_DIR = ./src/
 OBJECTS_DIR = ./temp/
 BUILD_DIR = ./
-FILES = $(OBJECTS_DIR)nanoasm.o \
-	$(OBJECTS_DIR)nanovm.o \
-	$(OBJECTS_DIR)nanodebug.o
-EXE = nanovm
+FILES = $(OBJECTS_DIR)dumbasm.o \
+	$(OBJECTS_DIR)dumbvm.o \
+	$(OBJECTS_DIR)dumbdebug.o
+EXE = dumbvm
 
 all: $(EXE)
 
 debug: CXXFLAGS += -g
 debug: LDFLAGS += -g
 debug: $(EXE)
-	$(BUILD_DIR)$(EXE)
 
 $(EXE): prep $(FILES)
 	$(CXX) $(LDFLAGS) $(FILES) -o $(BUILD_DIR)$@
