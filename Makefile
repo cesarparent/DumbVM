@@ -7,6 +7,10 @@ BUILD_DIR = ./
 FILES = $(OBJECTS_DIR)dumbasm.o \
 	$(OBJECTS_DIR)dumbvm.o \
 	$(OBJECTS_DIR)dumbdebug.o
+
+ASM_FILES = $(OBJECTS_DIR)dumbasm.o \
+	$(OBJECTS_DIR)dumbdebug.o
+
 EXE = dumbvm
 
 all: $(EXE)
@@ -17,8 +21,8 @@ debug: $(EXE)
 
 assembler: CXXFLAGS += -DASM
 assembler: LDFLAGS += -DASM
-assembler: prep $(OBJECTS_DIR)dumbasm.o
-	$(CXX) $(LDFLAGS) $(OBJECTS_DIR)dumbasm.o -o $(BUILD_DIR)$@
+assembler: prep $(ASM_FILES)
+	$(CXX) $(LDFLAGS) $(ASM_FILES) -o $(BUILD_DIR)$@
 
 $(EXE): prep $(FILES)
 	$(CXX) $(LDFLAGS) $(FILES) -o $(BUILD_DIR)$@

@@ -78,16 +78,31 @@ void VMEval(NanoVM *vm)
 			vm->registers[vm->regs[1]] = vm->registers[vm->regs[0]];
 			break;
 		
-		case 3:
+		case 3: // add
 			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] + vm->registers[vm->regs[1]];
 			break;
 		
-		case 4:
+		case 4: // sub
+			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] - vm->registers[vm->regs[1]];
+			break;
+		
+		case 5: // mul
 			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] * vm->registers[vm->regs[1]];
 			break;
 		
-		case 5:
+		case 6: // div
 			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] / vm->registers[vm->regs[1]];
+			break;
+		
+		case 7: // jmp
+			vm->instructionPointer += vm->num;
+			break;
+		
+		case 8: // jnz
+			if(vm->registers[vm->regs[0]])
+			{
+				vm->instructionPointer += vm->num;
+			}
 			break;
 		
 		default:
@@ -158,7 +173,7 @@ int main (int argc, char **argv)
 	if(argc != 2) die("wrong number of arguments");
 	NanoVM *vmInstance = newVMInstance(argv[1]);
 	VMRun(vmInstance);
-	printf("Shutting Down...\n");
+	printf("\nShutting Down...");
 	getchar();
 	VMDestroy(vmInstance);
 	return 0;

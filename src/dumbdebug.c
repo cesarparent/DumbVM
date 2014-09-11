@@ -27,5 +27,5 @@ void VMDebug(NanoVM *vm)
 	{
 		printf("%03d ", vm->registers[i]);
 	}
-	printf("\n");
+	printf("OpCode: 0x%2x\n", vm->instruction);
 }
