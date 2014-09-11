@@ -1,6 +1,6 @@
 # DumbVM
 
-DumbVM is a simplistic virtual machine written in C. It has its own assembly language, a simple assembler, and can read and execute hex machine code.
+DumbVM is a simplistic virtual machine written in C. It has its own assembly language, a simple assembler, and can read and execute hex machine code. I wrote this to try and apply the concepts taught in first year of BSc Computing by Dr. Ian Ferguson at Abertay Dundee University. It is certainly not an example of good C code, neither is it useful or complete. I intend to use it as I learn more about architecture and OS design, before switching to Raspberry PI bare metal programming.
 
 # Building
 
