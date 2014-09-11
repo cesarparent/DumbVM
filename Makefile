@@ -15,6 +15,9 @@ EXE = dumbvm
 
 all: $(EXE)
 
+install: $(EXE)
+	cp dumbvm ~/Dropbox/bin/dumbvm
+
 debug: CXXFLAGS += -g -DDEBUG
 debug: LDFLAGS += -g -DDEBUG
 debug: $(EXE)

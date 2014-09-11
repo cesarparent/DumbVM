@@ -4,15 +4,15 @@ DumbVM is a simplistic virtual machine written in C. It has its own assembly lan
 
 # Building
 
-The Makefile contains build instructions for creating a Mac executable, but should work for Windows and *nix without major changes.
+The Makefile contains build instructions for creating a Mac executable, but should work for Windows and *nix without major changes. `make debug` will switch the debug mode on in the built executable, which will print the contents of all registers for each vm cpu cycle. `make` will build the vm, and `make assembler` will build the assembler as a standalone executable.
 
 # Running
 
-The machine is launched by calling `./dumbvm <assembly programme>`. It will assemble it and output a `run.d` file with the final machine code, and run it. If the assembler is built, it can be used the same way to output machine code without running the machine.
+The machine is launched by calling `./dumbvm <assembly programme>`. It will assemble the given file and output a `run.d` file with the final machine code, and run it. If the assembler is built, it can be used the same way to output machine code without running the machine.
 
 # Design
 
-DumbVM It possesses four standard 8-bit (two's complement, from -128 to 127) registers (`r0` through `r3`), an input register (`r4`, unused at the moment, will hold the value of the last pressed key) and an output register (`r5`, which content is output as ascii and reset each cycle).
+DumbVM possesses four standard 8-bit (two's complement, from -128 to 127) registers (`r0` through `r3`), an input register (`r4`, unused at the moment, will hold the value of the last pressed key) and an output register (`r5`, which content is output as ascii and reset each cycle).
 
 DumbVM does not yet have any RAM.
 
