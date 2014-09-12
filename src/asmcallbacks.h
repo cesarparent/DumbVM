@@ -13,7 +13,7 @@ uint16_t asmMove(char *line)
 {
 	int8_t reg, value;
 	uint16_t opCode = 0x1000;
-	sscanf(line, "mov r%hhd, #%hhd", &reg, &value);
+	sscanf(line, "mov r%hhd, %hhd", &reg, &value);
 	opCode = (opCode |  ((reg & 0x000f) << 8));
 	opCode = (opCode | (value & 0x00ff));
 	return opCode;
@@ -77,7 +77,7 @@ uint16_t asmJump(char *line)
 {
 	int8_t offset;
 	uint16_t opCode = 0x7000;
-	sscanf(line, "jmp #%hhd", &offset);
+	sscanf(line, "jmp %hhd", &offset);
 	opCode = (opCode | (offset & 0x00ff));
 	return opCode;
 }
@@ -86,7 +86,7 @@ uint16_t asmJumpNZ(char *line)
 {
 	int8_t reg, offset;
 	uint16_t opCode = 0x8000;
-	sscanf(line, "jnz r%hhd, #%hhd", &reg, &offset);
+	sscanf(line, "jnz r%hhd, %hhd", &reg, &offset);
 	opCode = (opCode | ((reg & 0x000f) << 8));
 	opCode = (opCode | (offset & 0x00ff));
 	return opCode;
