@@ -26,7 +26,7 @@ ASMCommand ASMinstructionForLine(const char *line)
 		}
 		else
 		{
-			return HLT;
+			return -1;
 		}
 	}
 	return command;
@@ -58,12 +58,22 @@ void ASMAssembleProgram(FILE *programFile, char *output)
 	while(fgets(currentLine, MAX_LINE_LENGTH, programFile))
 	{
 		ASMCommand instr = ASMinstructionForLine(currentLine);
-		assembledProgram[length++] = callbacks[instr](currentLine);
+		if(instr == -1)
+		{
+			printf("Warning: \'%s\' is not a valid DVM instruction\n", currentLine);
+			printf("It will not be included in the programme\n");
+		}
+		else
+		{
+			assembledProgram[length++] = callbacks[instr](currentLine);
+		}
 	}
 	FILE *assembledFile = fopen(output, "w");
 	if(assembledFile == NULL) die ("Error writing assembled program");
 	fwrite(assembledProgram, sizeof (uint16_t), length, assembledFile);
 	fclose(assembledFile);
+	
+	printf("Finished assembling programme. Final size: %lu bytes\n",length*sizeof(uint16_t));
 }
 
 int main (int argc, char const *argv[])

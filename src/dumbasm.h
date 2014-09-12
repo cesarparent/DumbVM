@@ -11,6 +11,7 @@ typedef uint16_t (*tokenCallack)(char *line);
 
 typedef enum
 {
+	INVALID = -1,
 	HLT,
 	MOV,
 	CPY,
