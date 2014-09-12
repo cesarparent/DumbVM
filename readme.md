@@ -4,11 +4,15 @@ DumbVM is a simplistic virtual machine written in C. It has its own assembly lan
 
 # Building
 
-The Makefile contains build instructions for creating a Mac executable, but should work for Windows and *nix without major changes. `make debug` will switch the debug mode on in the built executable, which will print the contents of all registers for each vm cpu cycle. `make` will build the vm, and `make assembler` will build the assembler as a standalone executable.
+The Makefile contains build instructions for creating a Mac executable, but should work for Windows and *nix without major changes. Running `make debug` will trigger verbose output on the vm executable, which will display the values of all registers for each cpu cycle.
+
+Running `make all` will produce two executables, `dumbvm` (the actual virtual machine) and `dumbasm` (the assembler).
 
 # Running
 
-The machine is launched by calling `./dumbvm <assembly programme>`. It will assemble the given file and output a `run.d` file with the final machine code, and run it. If the assembler is built, it can be used the same way to output machine code without running the machine.
+The VM is launched by calling `./dumbvm <assembled programme file>`. It will attempt to load the programme in memory, and run it.
+
+The assembler is called with `./dumbasm <assembly programme>` and will output the assembled programme.
 
 # Design
 
@@ -28,14 +32,14 @@ In assembly, a register number is always preceded by `r`, while a constant is wr
 
 |Asm. Instr.	| Mach. Instr. | Syntax                                          | Example        |
 |:--------------|:-------------|:------------------------------------------------|:---------------|
-|`mov`          |1             |load a value in a register                       |`mov r0,200`   |
+|`mov`          |1             |load a value in a register                       |`mov r0,200`    |
 |`cpy`          |2             |copy value from register to register             |`cpy r0,r2`     |
-|`add`          |3             |add values from to registers in a third one      |`add r0,r2,r3`  |
-|`sub`          |4             |subtract values from to registers in a third one |`sub r0,r2,r3`  |
-|`mul`          |5             |multiply values from to registers in a third one |`mul r0,r2,r3`  |
-|`div`          |6             |divide values from to registers in a third one   |`div r0,r2,r3`  |
-|`jpm`          |7             |jump by a certain offset in the execution        |`jmp -5`       |
-|`jnz`          |7             |jump, only if the given register holds zero      |`jnz r1,-5`    |
+|`add`          |3             |add the second register to the first one         |`add r0,r2`     |
+|`sub`          |4             |subtract the second register from the first one  |`sub r0,r2`     |
+|`mul`          |5             |multiply the first register by the second one    |`mul r0,r2`     |
+|`div`          |6             |divide the first register by the second one      |`div r0,r2`     |
+|`jpm`          |7             |jump by a certain offset in the execution        |`jmp -5`        |
+|`jnz`          |7             |jump, only if the given register holds zero      |`jnz r1,-5`     |
 
 ## example programme
 
@@ -49,8 +53,8 @@ mov r0,26
 mov r1,97
 mov r2,1
 cpy r1,r5
-sub r0,r2,r0
-add r1,r2,r1
+sub r0,r2
+add r1,r2
 jnz r0,-4
 hlt
 ~~~~
@@ -62,7 +66,7 @@ hlt
 0x1201
 0x2150
 0x4020
-0x3121
+0x3120
 0x70fc
 0x0000
 ~~~

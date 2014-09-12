@@ -7,8 +7,6 @@
 #include "dumbasm.h"
 #include "asmcallbacks.h"
 
-
-
 /**
 ** Returns the ASMCommand value for the current line
 **
@@ -40,7 +38,7 @@ ASMCommand ASMinstructionForLine(const char *line)
 ** @param FILE *programFile the assembly file
 ** @return void
 */
-void ASMAssembleProgram(FILE *programFile)
+void ASMAssembleProgram(FILE *programFile, char *output)
 {
 	tokenCallack callbacks[] = {
 		asmHalt,
@@ -62,40 +60,20 @@ void ASMAssembleProgram(FILE *programFile)
 		ASMCommand instr = ASMinstructionForLine(currentLine);
 		assembledProgram[length++] = callbacks[instr](currentLine);
 	}
-	FILE *assembledFile = fopen("run.d", "w");
+	FILE *assembledFile = fopen(output, "w");
 	if(assembledFile == NULL) die ("Error writing assembled program");
 	fwrite(assembledProgram, sizeof (uint16_t), length, assembledFile);
 	fclose(assembledFile);
 }
 
-/**
-** Assembles the program file, then reads the assembled output
-** and loads it into the program memory for execution
-**
-** @param FILE *programFile the file containing the assembly program
-** NanoVM *vm the VM in which to load the program
-*/
-void ASMLoadProgram(FILE *programFile, NanoVM *vm)
-{
-	ASMAssembleProgram(programFile);
-	FILE *machineCode = fopen("run.d", "r");
-	fread(vm->program, sizeof (uint16_t), MAX_PROGRAM_LENGTH, machineCode);
-	fclose(machineCode);
-}
-
-
-#ifdef ASM
-
 int main (int argc, char const *argv[])
 {
 	if(argc != 2) die("Wrong number of arguments");
-	FILE *program = fopen("test.asm", "r");
-	
+	FILE *program = fopen(argv[1], "r");
 	if(program == NULL) die("Error reading assembly file");
-	ASMAssembleProgram(program);
-	
+	char outFileName[512];
+	sprintf(outFileName, "%s.d", argv[1]);
+	ASMAssembleProgram(program, outFileName);
 	fclose(program);
 	return 0;
 }
-
-#endif

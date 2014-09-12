@@ -14,7 +14,6 @@
 
 #include "dumbvm.h"
 #include "dumbdebug.h"
-#include "dumbasm.h"
 
 /**
 ** Boots the virtual machine, attempts to read a program,
@@ -24,13 +23,18 @@
 ** @param NanoVM* vm the VM instance in which to load the program
 ** @return bool true if the program was loaded and assembled, false otherwise
 */
-bool loadProgram(char *program, NanoVM *vm)
+
+/**
+** Loads the machine code programme into the memory of the VM
+**
+**
+*/
+void loadProgram(char *program, NanoVM *vm)
 {
-	FILE *programFile = fopen(program, "r");
-	if (programFile == NULL) die(program);
-	ASMLoadProgram(programFile, vm);
-	fclose(programFile);
-	return true;
+	FILE *machineCode = fopen(program, "r");
+	if (machineCode == NULL) die("Unable to open programme file");
+	fread(vm->program, sizeof (uint16_t), MAX_PROGRAM_LENGTH, machineCode);
+	fclose(machineCode);
 }
 
 /**
@@ -79,19 +83,19 @@ void VMEval(NanoVM *vm)
 			break;
 		
 		case 3: // add
-			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] + vm->registers[vm->regs[1]];
+			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] + vm->registers[vm->regs[1]];
 			break;
 		
 		case 4: // sub
-			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] - vm->registers[vm->regs[1]];
+			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] - vm->registers[vm->regs[1]];
 			break;
 		
 		case 5: // mul
-			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] * vm->registers[vm->regs[1]];
+			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] * vm->registers[vm->regs[1]];
 			break;
 		
 		case 6: // div
-			vm->registers[vm->regs[2]] = vm->registers[vm->regs[0]] / vm->registers[vm->regs[1]];
+			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] / vm->registers[vm->regs[1]];
 			break;
 		
 		case 7: // jmp
@@ -122,7 +126,7 @@ NanoVM *newVMInstance (char *programFile)
 	NanoVM *newVM = malloc(sizeof (NanoVM));
 	if (newVM == NULL) die("Memory allocation error while creating VM");
 	newVM->instructionPointer = 0;
-	if (!loadProgram(programFile, newVM)) die ("error while loading program");
+	loadProgram(programFile, newVM);
 	
 	newVM->registers[0] = 0;
 	newVM->registers[1] = 0;
@@ -173,8 +177,7 @@ int main (int argc, char **argv)
 	if(argc != 2) die("wrong number of arguments");
 	NanoVM *vmInstance = newVMInstance(argv[1]);
 	VMRun(vmInstance);
-	printf("\nShutting Down...");
-	getchar();
+	printf("\n");
 	VMDestroy(vmInstance);
 	return 0;
 }

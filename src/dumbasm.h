@@ -7,8 +7,6 @@
 
 #define MAX_LINE_LENGTH 64
 
-void ASMLoadProgram(FILE *programFile, NanoVM *vm);
-
 typedef uint16_t (*tokenCallack)(char *line);
 
 typedef enum

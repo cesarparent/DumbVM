@@ -4,31 +4,30 @@ LDFLAGS = -arch i386 -arch x86_64 -mmacosx-version-min=10.6
 SOURCE_DIR = ./src/
 OBJECTS_DIR = ./temp/
 BUILD_DIR = ./
-FILES = $(OBJECTS_DIR)dumbasm.o \
-	$(OBJECTS_DIR)dumbvm.o \
+VM_FILES = $(OBJECTS_DIR)dumbvm.o \
 	$(OBJECTS_DIR)dumbdebug.o
 
 ASM_FILES = $(OBJECTS_DIR)dumbasm.o \
 	$(OBJECTS_DIR)dumbdebug.o
 
-EXE = dumbvm
+VM = dumbvm
+ASM = dumbasm
 
-all: $(EXE)
+all: $(VM) $(ASM)
 
-install: $(EXE)
-	cp dumbvm ~/Dropbox/bin/dumbvm
+install: $(VM) $(ASM)
+	cp $(VM) ~/Dropbox/bin/$(VM)
+	cp $(ASM) ~/Dropbox/bin/$(ASM)
 
 debug: CXXFLAGS += -g -DDEBUG
 debug: LDFLAGS += -g -DDEBUG
-debug: $(EXE)
+debug: $(VM) $(ASM)
 
-assembler: CXXFLAGS += -DASM
-assembler: LDFLAGS += -DASM
-assembler: prep $(ASM_FILES)
+$(ASM): prep $(ASM_FILES)
 	$(CXX) $(LDFLAGS) $(ASM_FILES) -o $(BUILD_DIR)$@
 
-$(EXE): prep $(FILES)
-	$(CXX) $(LDFLAGS) $(FILES) -o $(BUILD_DIR)$@
+$(VM): prep $(VM_FILES)
+	$(CXX) $(LDFLAGS) $(VM_FILES) -o $(BUILD_DIR)$@
 
 $(OBJECTS_DIR)%.o: $(SOURCE_DIR)%.c
 	$(CXX) $(CXXFLAGS) $< -o $@
@@ -38,5 +37,5 @@ prep:
 
 clean:
 	rm -rf ./temp
-	rm -rf $(BUILD_DIR)$(EXE)
-	rm -rf $(BUILD_DIR)assembler
+	rm -rf $(BUILD_DIR)$(VM)
+	rm -rf $(BUILD_DIR)$(ASM)
