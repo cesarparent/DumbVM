@@ -32,14 +32,18 @@ In assembly, a register number is always preceded by `r`, while a constant is wr
 
 |Asm. Instr.	| Mach. Instr. | Syntax                                          | Example        |
 |:--------------|:-------------|:------------------------------------------------|:---------------|
-|`mov`          |1             |load a value in a register                       |`mov r0,200`    |
-|`cpy`          |2             |copy value from register to register             |`cpy r0,r2`     |
-|`add`          |3             |add the second register to the first one         |`add r0,r2`     |
-|`sub`          |4             |subtract the second register from the first one  |`sub r0,r2`     |
-|`mul`          |5             |multiply the first register by the second one    |`mul r0,r2`     |
-|`div`          |6             |divide the first register by the second one      |`div r0,r2`     |
-|`jpm`          |7             |jump by a certain offset in the execution        |`jmp -5`        |
-|`jnz`          |7             |jump, only if the given register holds zero      |`jnz r1,-5`     |
+|`mov`          |0x1           |load a value in a register                       |`mov r0,200`    |
+|`cpy`          |0x2           |copy value from register to register             |`cpy r0,r2`     |
+|`add`          |0x3           |add the second register to the first one         |`add r0,r2`     |
+|`sub`          |0x4           |subtract the second register from the first one  |`sub r0,r2`     |
+|`mul`          |0x5           |multiply the first register by the second one    |`mul r0,r2`     |
+|`div`          |0x6           |divide the first register by the second one      |`div r0,r2`     |
+|`inc`          |0x7           |divide the first register by the second one      |`inc r0`        |
+|`dec`          |0x8           |divide the first register by the second one      |`dec r0`        |
+|`blk`          |0x9           |block (subroutine) start                         |`dec r0`        |
+|`ret`          |0xa           |  
+|`jpm`          |0xb           |jump by a certain offset in the execution        |`jmp -5`        |
+|`jnz`          |0xc           |jump, only if the given register holds zero      |`jnz r1,-5`     |
 
 ## example programme
 

@@ -28,4 +28,5 @@ void VMDebug(NanoVM *vm)
 		printf("%03d ", vm->registers[i]);
 	}
 	printf("OpCode: 0x%2x\n", vm->instruction);
+	printf("Stack item: 0x%04x\n",vm->ram[vm->registers[RSP]+1]);
 }

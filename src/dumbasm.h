@@ -7,34 +7,6 @@
 
 #define MAX_LINE_LENGTH 64
 
-typedef uint16_t (*tokenCallack)(char *line);
-
-typedef enum
-{
-	INVALID = -1,
-	HLT,
-	MOV,
-	CPY,
-	ADD,
-	SUB,
-	MUL,
-	DIV,
-	JMP,
-	JNZ,
-} ASMCommand;
-
-static char *commands[] = {
-	"hlt",
-	"mov",
-	"cpy",
-	"add",
-	"sub",
-	"mul",
-	"div",
-	"jmp",
-	"jnz",
-};
-
-
+uint16_t ASMLineForLabel(char *program, char *search);
 
 #endif

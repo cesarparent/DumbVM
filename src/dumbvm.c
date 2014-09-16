@@ -14,6 +14,7 @@
 
 #include "dumbvm.h"
 #include "dumbdebug.h"
+#include "instructionset.h"
 
 /**
 ** Boots the virtual machine, attempts to read a program,
@@ -24,6 +25,25 @@
 ** @return bool true if the program was loaded and assembled, false otherwise
 */
 
+
+void VMPushStack(NanoVM *vm, int8_t value)
+{
+	if(vm->registers[RSP] < (vm->registers[RMS]))
+	{
+		die("Stack overflow");
+	}
+	vm->ram[vm->registers[RSP]--] = value;
+}
+
+int8_t VMPopStack(NanoVM *vm)
+{
+	if(vm->registers[RSP] < vm->registers[RMS] + STACK_SIZE)
+	{
+		return vm->ram[++vm->registers[RSP]];
+	}
+	return vm->ram[vm->registers[RMS] + STACK_SIZE];
+}
+
 /**
 ** Loads the machine code programme into the memory of the VM
 **
@@ -31,10 +51,21 @@
 */
 void loadProgram(char *program, NanoVM *vm)
 {
+	uint32_t tempProgram[MAX_PROGRAM_LENGTH] = {0};
+	int length = 0;
 	FILE *machineCode = fopen(program, "r");
 	if (machineCode == NULL) die("Unable to open programme file");
-	fread(vm->program, sizeof (uint16_t), MAX_PROGRAM_LENGTH, machineCode);
+	length = fread(tempProgram, sizeof (uint32_t), MAX_PROGRAM_LENGTH, machineCode);
 	fclose(machineCode);
+	for(int i = 0; i < length; ++i)
+	{
+		vm->ram[i*4] = (tempProgram[i] & 0xff000000) >> 24;
+		vm->ram[(i*4)+1] = (tempProgram[i] & 0xff0000) >> 16;
+		vm->ram[(i*4)+2] = (tempProgram[i] & 0xff00) >> 8;
+		vm->ram[(i*4)+3] = (tempProgram[i] & 0xff);
+	}
+	vm->registers[RMS] = (length*4) + 128;
+	vm->registers[RSP] = vm->registers[RMS] + STACK_SIZE;
 }
 
 /**
@@ -44,7 +75,17 @@ void loadProgram(char *program, NanoVM *vm)
 */
 void VMFetch(NanoVM *vm)
 {
-	vm->instruction = vm->program[vm->instructionPointer++];
+	vm->instruction = 0x00000000;
+	uint16_t ramAddress = 0;
+	for(int i = 0; i < 4; ++i)
+	{
+		ramAddress = (vm->registers[RIP]*4) + i;
+		vm->instruction |= (vm->ram[ramAddress] & 0x0ff) << ((3-i) * 8);
+	}
+	++vm->registers[RIP];
+#ifdef DEBUG
+	getchar();
+#endif
 }
 
 /**
@@ -54,11 +95,11 @@ void VMFetch(NanoVM *vm)
 */
 void VMDecodeOperation(NanoVM *vm)
 {
-	vm->opcode = (vm->instruction & 0xF000) >> 12;
-	vm->regs[0] = (vm->instruction & 0xF00) >> 8;
-	vm->regs[1] = (vm->instruction & 0xF0) >> 4;
-	vm->regs[2] = (vm->instruction & 0xF);
-	vm->num = (int8_t)(vm->instruction & 0xFF);
+	vm->opcode = (vm->instruction & 0xff000000) >> 24;
+	vm->opReg[0] = (vm->instruction & 0xff0000) >> 16;
+	vm->opReg[1] = (vm->instruction & 0xff00) >> 8;
+	vm->opReg[2] = (vm->instruction & 0xff);
+	vm->opNum = (int8_t)(vm->instruction & 0xffff);
 }
 
 /**
@@ -68,50 +109,27 @@ void VMDecodeOperation(NanoVM *vm)
 */
 void VMEval(NanoVM *vm)
 {
-	switch(vm->opcode)
-	{
-		case 0: // halt execution
-			vm->running = 0;
-			break;
-		
-		case 1: //ld
-			vm->registers[vm->regs[0]] = vm->num;
-			break;
-		
-		case 2: // cpy
-			vm->registers[vm->regs[1]] = vm->registers[vm->regs[0]];
-			break;
-		
-		case 3: // add
-			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] + vm->registers[vm->regs[1]];
-			break;
-		
-		case 4: // sub
-			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] - vm->registers[vm->regs[1]];
-			break;
-		
-		case 5: // mul
-			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] * vm->registers[vm->regs[1]];
-			break;
-		
-		case 6: // div
-			vm->registers[vm->regs[0]] = vm->registers[vm->regs[0]] / vm->registers[vm->regs[1]];
-			break;
-		
-		case 7: // jmp
-			vm->instructionPointer += vm->num;
-			break;
-		
-		case 8: // jnz
-			if(vm->registers[vm->regs[0]])
-			{
-				vm->instructionPointer += vm->num;
-			}
-			break;
-		
-		default:
-			break;
-	}
+	vm->execOps[vm->opcode](vm);
+}
+
+void VMLoadInstructionSet(NanoVM *vm)
+{
+	vm->execOps[HLT] = execHalt;
+	vm->execOps[MOV] = execMove;
+	vm->execOps[CPY] = execCopy;
+	vm->execOps[CPI] = execCopyIn;
+	vm->execOps[CPO] = execCopyOut;
+	vm->execOps[ADD] = execAdd;
+	vm->execOps[SUB] = execSub;
+	vm->execOps[MUL] = execMult;
+	vm->execOps[DIV] = execDiv;
+	vm->execOps[INC] = execInc;
+	vm->execOps[DEC] = execDec;
+	vm->execOps[CLL] = execCall;
+	vm->execOps[LBL] = execLabel;
+	vm->execOps[JMP] = execJump;
+	vm->execOps[JNZ] = execJumpNZ;
+	vm->execOps[RET] = execReturn;
 }
 
 /**
@@ -125,17 +143,26 @@ NanoVM *newVMInstance (char *programFile)
 {
 	NanoVM *newVM = malloc(sizeof (NanoVM));
 	if (newVM == NULL) die("Memory allocation error while creating VM");
-	newVM->instructionPointer = 0;
-	loadProgram(programFile, newVM);
 	
-	newVM->registers[0] = 0;
-	newVM->registers[1] = 0;
-	newVM->registers[2] = 0;
-	newVM->registers[3] = 0;
+	newVM->registers[GAX] = 0;
+	newVM->registers[GBX] = 0;
+	newVM->registers[GCX] = 0;
+	newVM->registers[GDX] = 0;
+	newVM->registers[GIX] = 0;
+	newVM->registers[GOX] = 0;
+	newVM->registers[RIP] = 0;
+	newVM->registers[RSP] = 0;
+	newVM->registers[RMS] = 0;
+	newVM->registers[RMU] = 0;
+	
+	loadProgram(programFile, newVM);
 	
 	newVM->opcode = 0;
 	newVM->running = true;
+	VMLoadInstructionSet(newVM);
+	
 	return newVM;
+	
 }
 
 /**

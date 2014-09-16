@@ -8,6 +8,37 @@
 #include "asmcallbacks.h"
 
 /**
+** Creates a dictionary of all the labels in a programme
+**
+**
+*/
+uint16_t ASMLineForLabel(char *program, char *search)
+{
+	FILE *programFile = fopen(program, "r");
+	if(programFile == NULL) die("error while reading program file");
+	char command[16];
+	char label[32];
+	char currentLine[128];
+	uint16_t line = 0;
+	while(fgets(currentLine, 128, programFile))
+	{
+		sscanf(currentLine, "%s", command);
+		if(!strcmp(command, "lbl"))
+		{
+			sscanf(currentLine, " lbl %s", label);
+			if(!strcmp(label, search))
+			{
+				return line;
+			}
+		}
+		++line;
+	}
+	printf("(%d) No label found with name %s\n", line, search);
+	fclose(programFile);
+	return -1;
+}
+
+/**
 ** Returns the ASMCommand value for the current line
 **
 ** @param const char *line the assembly code line to decode
@@ -20,7 +51,7 @@ ASMCommand ASMinstructionForLine(const char *line)
 	ASMCommand command = 0;
 	while(strcmp(operation,commands[command]))
 	{
-		if(command < JNZ)
+		if(command < RET)
 		{
 			++command;
 		}
@@ -38,52 +69,59 @@ ASMCommand ASMinstructionForLine(const char *line)
 ** @param FILE *programFile the assembly file
 ** @return void
 */
-void ASMAssembleProgram(FILE *programFile, char *output)
+void ASMAssembleProgram(char *program, char *output)
 {
 	tokenCallack callbacks[] = {
 		asmHalt,
 		asmMove,
 		asmCopy,
+		asmCopyIn,
+		asmCopyOut,
 		asmAdd,
 		asmSub,
 		asmMult,
 		asmDiv,
+		asmInc,
+		asmDec,
+		asmCall,
+		asmLabel,
 		asmJump,
-		asmJumpNZ
+		asmJumpNZ,
+		asmReturn,
 	};
 	char currentLine[MAX_LINE_LENGTH];
 	int length = 0;
-	uint16_t assembledProgram[MAX_PROGRAM_LENGTH]= {0x0000};
+	uint16_t line = 0;
+	uint32_t assembledProgram[MAX_PROGRAM_LENGTH]= {0};
+	FILE *programFile = fopen(program, "r");
+	if(programFile == NULL) die("error loading programme file");
 	
 	while(fgets(currentLine, MAX_LINE_LENGTH, programFile))
 	{
 		ASMCommand instr = ASMinstructionForLine(currentLine);
-		if(instr == -1)
+		if(instr != -1)
 		{
-			printf("Warning: \'%s\' is not a valid DVM instruction\n", currentLine);
-			printf("It will not be included in the programme\n");
+			assembledProgram[length++] = callbacks[instr](currentLine, line, program);
+			printf("%02d: 0x%08x\n", line, callbacks[instr](currentLine, line, program));
 		}
-		else
-		{
-			assembledProgram[length++] = callbacks[instr](currentLine);
-		}
+		++line;
 	}
+	fclose(programFile);
 	FILE *assembledFile = fopen(output, "w");
 	if(assembledFile == NULL) die ("Error writing assembled program");
-	fwrite(assembledProgram, sizeof (uint16_t), length, assembledFile);
+	fwrite(assembledProgram, sizeof (uint32_t), length, assembledFile);
 	fclose(assembledFile);
 	
-	printf("Finished assembling programme. Final size: %lu bytes\n",length*sizeof(uint16_t));
+	printf("Finished assembling programme. Final size: %lu bytes\n",length*sizeof(uint32_t));
 }
 
-int main (int argc, char const *argv[])
+int main (int argc, char *argv[])
 {
 	if(argc != 2) die("Wrong number of arguments");
-	FILE *program = fopen(argv[1], "r");
-	if(program == NULL) die("Error reading assembly file");
 	char outFileName[512];
 	sprintf(outFileName, "%s.d", argv[1]);
-	ASMAssembleProgram(program, outFileName);
-	fclose(program);
+	ASMAssembleProgram(argv[1], outFileName);
+	int16_t test = 0xfffc;
+	printf("0xfffc = %d\n", test);
 	return 0;
 }
