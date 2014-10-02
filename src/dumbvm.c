@@ -7,13 +7,14 @@
 ** Copyright (c) 2014 Cesar Parent
 **
 */
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "dumbvm.h"
 #include "dumbdebug.h"
+#include "instructionset.h"
 
 /**
 ** Boots the virtual machine, attempts to read a program,
@@ -33,8 +34,11 @@ void loadProgram(char *program, NanoVM *vm)
 {
 	FILE *machineCode = fopen(program, "r");
 	if (machineCode == NULL) die("Unable to open programme file");
-	fread(vm->program, sizeof (uint16_t), MAX_PROGRAM_LENGTH, machineCode);
+	int length = fread(vm->memory, sizeof (int16_t), MAX_PROGRAM_LENGTH, machineCode);
 	fclose(machineCode);
+	vm->registers[SS] = length + 32;
+	vm->registers[SP] = vm->registers[SS] + STACK_SIZE;
+	vm->registers[SU] = vm->registers[SP] + 32;
 }
 
 /**
@@ -44,7 +48,8 @@ void loadProgram(char *program, NanoVM *vm)
 */
 void VMFetch(NanoVM *vm)
 {
-	vm->instruction = vm->program[vm->instructionPointer++];
+	vm->
+	vm->instruction = vm->memory[vm->registers[IP]++];
 }
 
 /**
@@ -99,13 +104,13 @@ void VMEval(NanoVM *vm)
 			break;
 		
 		case 7: // jmp
-			vm->instructionPointer += vm->num;
+			vm->registers[IP] += vm->num;
 			break;
 		
 		case 8: // jnz
 			if(vm->registers[vm->regs[0]])
 			{
-				vm->instructionPointer += vm->num;
+				vm->registers[IP] += vm->num;
 			}
 			break;
 		
@@ -125,13 +130,12 @@ NanoVM *newVMInstance (char *programFile)
 {
 	NanoVM *newVM = malloc(sizeof (NanoVM));
 	if (newVM == NULL) die("Memory allocation error while creating VM");
-	newVM->instructionPointer = 0;
-	loadProgram(programFile, newVM);
 	
-	newVM->registers[0] = 0;
-	newVM->registers[1] = 0;
-	newVM->registers[2] = 0;
-	newVM->registers[3] = 0;
+	for(int i = 0; i < NUM_REGISTERS; ++i)
+	{
+		newVM->registers[i] = 0x0;
+	}
+	loadProgram(programFile, newVM);
 	
 	newVM->opcode = 0;
 	newVM->running = true;

@@ -51,7 +51,7 @@ uint16_t asmSub(char *line)
 	return opCode;
 }
 
-uint16_t asmMult(char *line)
+uint16_t asmMultiply(char *line)
 {
 	int8_t reg1, reg2, dest;
 	uint16_t opCode = 0x5000;
@@ -62,7 +62,7 @@ uint16_t asmMult(char *line)
 	return opCode;
 }
 
-uint16_t asmDiv(char *line)
+uint16_t asmDivide(char *line)
 {
 	int8_t reg1, reg2, dest;
 	uint16_t opCode = 0x6000;

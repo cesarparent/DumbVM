@@ -38,7 +38,7 @@ In assembly, a register number is always preceded by `r`, while a constant is wr
 |`sub`          |4             |subtract the second register from the first one  |`sub r0,r2`     |
 |`mul`          |5             |multiply the first register by the second one    |`mul r0,r2`     |
 |`div`          |6             |divide the first register by the second one      |`div r0,r2`     |
-|`jpm`          |7             |jump by a certain offset in the execution        |`jmp -5`        |
+|`jmp`          |7             |jump by a certain offset in the execution        |`jmp -5`        |
 |`jnz`          |7             |jump, only if the given register holds zero      |`jnz r1,-5`     |
 
 ## example programme

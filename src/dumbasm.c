@@ -8,16 +8,16 @@
 #include "asmcallbacks.h"
 
 /**
-** Returns the ASMCommand value for the current line
+** Returns the INSTRUCTION_CODE value for the current line
 **
 ** @param const char *line the assembly code line to decode
-** @return ASMCommand the command value
+** @return INSTRUCTION_CODE the command value
 */
-ASMCommand ASMinstructionForLine(const char *line)
+INSTRUCTION_CODE ASMinstructionForLine(const char *line)
 {
 	char operation[4];
 	sscanf(line, "%s", operation);
-	ASMCommand command = 0;
+	INSTRUCTION_CODE command = 0;
 	while(strcmp(operation,commands[command]))
 	{
 		if(command < JNZ)
@@ -40,24 +40,25 @@ ASMCommand ASMinstructionForLine(const char *line)
 */
 void ASMAssembleProgram(FILE *programFile, char *output)
 {
-	tokenCallack callbacks[] = {
-		asmHalt,
-		asmMove,
-		asmCopy,
-		asmAdd,
-		asmSub,
-		asmMult,
-		asmDiv,
-		asmJump,
-		asmJumpNZ
-	};
+	
+	tokenCallback callbacks[16];
+	callbacks[HLT] = asmHalt;
+	callbacks[MOV] = asmMove;
+	callbacks[CPY] = asmCopy;
+	callbacks[ADD] = asmAdd;
+	callbacks[SUB] = asmSub;
+	callbacks[MUL] = asmMultiply;
+	callbacks[DIV] = asmDivide;
+	callbacks[JMP] = asmJump;
+	callbacks[JNZ] = asmJumpNZ;
+	
 	char currentLine[MAX_LINE_LENGTH];
 	int length = 0;
 	uint16_t assembledProgram[MAX_PROGRAM_LENGTH]= {0x0000};
 	
 	while(fgets(currentLine, MAX_LINE_LENGTH, programFile))
 	{
-		ASMCommand instr = ASMinstructionForLine(currentLine);
+		INSTRUCTION_CODE instr = ASMinstructionForLine(currentLine);
 		if(instr == -1)
 		{
 			printf("Warning: \'%s\' is not a valid DVM instruction\n", currentLine);

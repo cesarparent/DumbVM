@@ -7,34 +7,25 @@
 
 #define MAX_LINE_LENGTH 64
 
-typedef uint16_t (*tokenCallack)(char *line);
+typedef uint16_t (*tokenCallback)(char *line);
 
-typedef enum
-{
-	INVALID = -1,
-	HLT,
-	MOV,
-	CPY,
-	ADD,
-	SUB,
-	MUL,
-	DIV,
-	JMP,
-	JNZ,
-} ASMCommand;
 
 static char *commands[] = {
 	"hlt",
 	"mov",
 	"cpy",
+	"lod",
+	"str",
 	"add",
 	"sub",
 	"mul",
 	"div",
+	"inc",
+	"dec",
+	"psh",
+	"pop",
 	"jmp",
 	"jnz",
 };
-
-
 
 #endif

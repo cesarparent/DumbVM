@@ -7,25 +7,53 @@
 ** Copyright (c) 2014 Cesar Parent
 **
 */
-
 #ifndef _nanovm_h
 #define _nanovm_h
 
-#include <stdint.h>
-
-#define NUM_REGISTERS 6
+#define NUM_REGISTERS 10
+#define RAM_WORDS_NUM 8192
 #define MAX_PROGRAM_LENGTH 1024
+#define STACK_SIZE 256;
+
+typedef enum OpCodes
+{
+	INVALID = -1,
+	HLT = 0x0,
+	MOV = 0x1,
+	CPY = 0x2,
+	LOD = 0x3,
+	STR = 0x4,
+	ADD = 0x5,
+	SUB = 0x6,
+	MUL = 0x7,
+	DIV = 0x8,
+	INC = 0x9,
+	DEC = 0xa,
+	PSH = 0xb,
+	POP = 0xc,
+	JMP = 0xd,
+	JNZ = 0xe,
+} INSTRUCTION_CODE;
+
+typedef enum
+{
+	GPI = 4,
+	GPO,
+	IP,
+	SP,
+	SS,
+	SU,
+} VMSpecialRegisters;
 
 typedef struct
 {
 	bool running;
-	int16_t registers[NUM_REGISTERS]; // four standard regs, two I/O regs
-	uint16_t program[MAX_PROGRAM_LENGTH];
-	uint16_t instruction;
-	uint16_t opcode;
+	int16_t memory[RAM_WORDS_NUM];
+	int16_t registers[10]; // four gp registers, input, output, ip, sp, ss, us
+	uint32_t instruction;
+	INSTRUCTION_CODE opcode;
 	uint8_t regs[3];
-	int8_t num;
-	uint16_t instructionPointer;
+	int16_t num;
 } NanoVM;
 
 #endif

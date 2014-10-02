@@ -23,9 +23,16 @@ void die(char message[])
 */
 void VMDebug(NanoVM *vm)
 {
-	for(int i = 0; i < NUM_REGISTERS; ++i)
+	for(int i = 0; i < 4; ++i)
 	{
 		printf("%03d ", vm->registers[i]);
 	}
+	printf("\n");
+	for(int i = 4; i < NUM_REGISTERS; ++i)
+	{
+		printf("%03d ", vm->registers[i]);
+	}
+	printf("\n");
 	printf("OpCode: 0x%2x\n", vm->instruction);
+	getchar();
 }
