@@ -48,7 +48,6 @@ void loadProgram(char *program, NanoVM *vm)
 */
 void VMFetch(NanoVM *vm)
 {
-	vm->
 	vm->instruction = vm->memory[vm->registers[IP]++];
 }
 
