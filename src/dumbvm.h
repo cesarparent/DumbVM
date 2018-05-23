@@ -3,8 +3,8 @@
 **
 ** nanovm.h - headers and datatypes for nanovm
 **
-** Created 2014-09-09 by Cesar Parent <cesar@cesarparent.com>
-** Copyright (c) 2014 Cesar Parent
+** Created 2014-09-09 by Amy Parent <amy@amyparent.com>
+** Copyright (c) 2014 Amy Parent
 **
 */
 #ifndef _nanovm_h

@@ -3,8 +3,8 @@
 **
 ** nanovm.c - main implementation of the VM logic
 **
-** Created 2014-09-09 by Cesar Parent <cesar@cesarparent.com>
-** Copyright (c) 2014 Cesar Parent
+** Created 2014-09-09 by Amy Parent <amy@amyparent.com>
+** Copyright (c) 2014 Amy Parent
 **
 */
 #include <stdlib.h>
